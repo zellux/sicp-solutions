@@ -4,15 +4,10 @@
         (else
          (let ((s1car (stream-car s1))
                (s2car (stream-car s2)))
-           (cond ((< (func s1car) (func s2car))
+           (cond ((<= (func s1car) (func s2car))
                   (cons-stream s1car (merge-weighted (stream-cdr s1) s2 func)))
                  ((> (func s1car) (func s2car))
-                  (cons-stream s2car (merge-weighted s1 (stream-cdr s2) func)))
-                 (else
-                  (cons-stream s1car
-                               (merge-weighted (stream-cdr s1)
-                                               (stream-cdr s2)
-                                               func))))))))
+                  (cons-stream s2car (merge-weighted s1 (stream-cdr s2) func))))))))
 
 (display-stream
  (merge-weighted
@@ -46,4 +41,24 @@
   (stream-enumerate-interval 0 5)
   calc-weight))
 
+(define (calc-weight-2 x)
+  (let ((a (car x))
+        (b (car (cdr x))))
+    (+ (* 2 a) (* 3 b) (* 5 a b))))
+
+(define (divided-by-2-3-5 x)
+  (or (= (remainder x 2) 0)
+      (= (remainder x 3) 0)
+      (= (remainder x 5) 0)))
+
+(stream-head
+ (stream-filter
+  (lambda (x)
+    (or (divided-by-2-3-5 (car x))
+        (divided-by-2-3-5 (car (cdr x)))))
+  (weighted-pairs
+   integers
+   integers
+   calc-weight-2))
+ 30)
 
